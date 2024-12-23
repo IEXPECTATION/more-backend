@@ -6,11 +6,15 @@ import (
 
 type User struct {
 	gorm.Model
-	Name       string
-	Password   string
-	Cash       float64
-	DreamFund  float64
-	Goose      float64
-	GoldrenEgg float64
-	SilverEgg  float64
+	PeopleId uint
+	Name     string
+	Password string
+}
+
+func GetUser(db *gorm.DB, name string) (u User) {
+	db.First(&u, "name = ?", name)
+	return
+}
+
+func (u *User) SetUserName(db *gorm.DB, name string) {
 }
