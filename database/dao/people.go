@@ -4,8 +4,7 @@ import "gorm.io/gorm"
 
 type People struct {
 	gorm.Model
-	Name     string
-	PeopleId string
+	Name string
 }
 
 func GetPeople(db *gorm.DB, name string) (p People) {

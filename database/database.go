@@ -20,8 +20,8 @@ func Init() (*gorm.DB, error) {
 	}
 
 	// Create a new people table for all basic users.
-	db.AutoMigrate(&dao.User{})
-	db.Create(&dao.People{Name: "BasicPeople", PeopleId: ""})
+	db.AutoMigrate(&dao.People{})
+	db.FirstOrCreate(&dao.People{Name: "BasicPeople"})
 
 	db.AutoMigrate(&dao.User{})
 

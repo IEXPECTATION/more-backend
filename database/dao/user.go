@@ -16,5 +16,6 @@ func GetUser(db *gorm.DB, name string) (u User) {
 	return
 }
 
-func (u *User) SetUserName(db *gorm.DB, name string) {
+func (u *User) Update(db *gorm.DB) {
+
 }
