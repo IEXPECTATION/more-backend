@@ -27,4 +27,5 @@ func Register(g *gin.Engine) {
 	g.Use(CORSMiddleware())
 	g.GET("/", service.HomePage)
 	g.POST("/login", service.LoginService)
+	g.POST("/signup", service.SignupService)
 }
