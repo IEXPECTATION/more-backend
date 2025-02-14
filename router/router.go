@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/iexpectation/more/back-end/router/service"
+	"github.com/iexpectation/more/back-end/service"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -25,7 +25,7 @@ func CORSMiddleware() gin.HandlerFunc {
 
 func Register(g *gin.Engine) {
 	g.Use(CORSMiddleware())
-	g.GET("/", service.HomePage)
+	g.GET("/", service.Test)
 	g.POST("/login", service.LoginService)
 	g.POST("/signup", service.SignupService)
 }
