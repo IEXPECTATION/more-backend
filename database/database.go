@@ -28,6 +28,6 @@ func Init() (*gorm.DB, error) {
 	return db, nil
 }
 
-func UseDB() *gorm.DB {
+func Instance() *gorm.DB {
 	return db
 }

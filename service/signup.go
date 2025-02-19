@@ -24,7 +24,7 @@ func SignupService(ctx *gin.Context) {
 	fmt.Printf("username: %s\t", name)
 	fmt.Printf("userpasswd: %s\n", password)
 
-	db := database.UseDB()
+	db := database.Instance()
 	targetUser := dao.User{
 		PeopleId: user.PeopleId,
 		Name:     string(name),

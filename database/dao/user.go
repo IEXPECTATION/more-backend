@@ -10,3 +10,10 @@ type User struct {
 	Name     string
 	Password string
 }
+
+func (user *User) Validate(other *User) bool {
+	if user.Password != other.Password {
+		return false
+	}
+	return true
+}

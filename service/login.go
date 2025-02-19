@@ -1,33 +1,42 @@
 package service
 
 import (
-	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/iexpectation/more/back-end/database"
 	"github.com/iexpectation/more/back-end/database/dao"
+	"gorm.io/gorm"
 )
 
 func LoginService(ctx *gin.Context) {
-	user := dao.User{}
-	err := ctx.ShouldBindJSON(&user)
+	targetUser := dao.User{}
+	err := ctx.ShouldBindJSON(&targetUser)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	// TODO: Handle the error
-	name, _ := base64.StdEncoding.DecodeString(user.Name)
-	password, _ := base64.StdEncoding.DecodeString(user.Password)
+	db := database.Instance()
+	user := dao.User{}
+	result := db.Where("people_id = ? and name = ?", targetUser.PeopleId, targetUser.Name).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusOK, gin.H{"status": "fail", "message": "Target user is not found."})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": result.Error.Error()})
+		}
 
-	fmt.Printf("username: %s\t", name)
-	fmt.Printf("userpasswd: %s\n", password)
+		ctx.Abort()
+		return
+	}
 
-	db := database.UseDB()
-	targetUser := dao.User{}
-	db.First(&targetUser, "name = ?", name)
-	fmt.Println(targetUser)
+	if !user.Validate(&targetUser) {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": "The password of target user is incorrect."})
+		ctx.Abort()
+		return
+	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": "Resource created"})
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": nil})
 }
