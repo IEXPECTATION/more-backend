@@ -1,42 +1,43 @@
 package service
 
 import (
-	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/iexpectation/more/back-end/database"
 	"github.com/iexpectation/more/back-end/database/dao"
+	"gorm.io/gorm"
 )
 
 func SignupService(ctx *gin.Context) {
-	user := dao.User{}
-	err := ctx.ShouldBindJSON(&user)
+	targetUser := dao.User{}
+	err := ctx.ShouldBindJSON(&targetUser)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	// TODO: Handle the error
-	name, _ := base64.StdEncoding.DecodeString(user.Name)
-	password, _ := base64.StdEncoding.DecodeString(user.Password)
-
-	fmt.Printf("username: %s\t", name)
-	fmt.Printf("userpasswd: %s\n", password)
-
 	db := database.Instance()
-	targetUser := dao.User{
-		PeopleId: user.PeopleId,
-		Name:     string(name),
-		Password: string(password),
+	user := dao.User{}
+
+	result := db.Where("people_id = ? and name = ?", targetUser.PeopleId, targetUser.Name).First(&user)
+	if result.Error != nil {
+		fmt.Println(errors.Is(result.Error, gorm.ErrRecordNotFound))
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			// Add the target user to db
+			targetUser.HashPassword()
+			if db.Create(&targetUser).Error != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": "failed to create the new user!"})
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "signup successful!"})
+			return
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": result.Error.Error()})
+			return
+		}
 	}
 
-	result := db.Where(dao.User{Name: string(name)}).FirstOrCreate(&targetUser)
-	if result.RowsAffected == 0 {
-		// The user is existed.
-		fmt.Println("The user is existed!")
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"msg": "Sign up successfully."})
+	ctx.JSON(http.StatusOK, gin.H{"status": "failure", "message": "The target user has already signed up!"})
 }

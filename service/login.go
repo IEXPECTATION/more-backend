@@ -23,17 +23,17 @@ func LoginService(ctx *gin.Context) {
 	result := db.Where("people_id = ? and name = ?", targetUser.PeopleId, targetUser.Name).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			ctx.JSON(http.StatusOK, gin.H{"status": "fail", "message": "Target user is not found."})
+			ctx.JSON(http.StatusOK, gin.H{"status": "failure", "message": "The information of target user is incorrect!"})
 		} else {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": result.Error.Error()})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": result.Error.Error()})
 		}
 
 		ctx.Abort()
 		return
 	}
 
-	if !user.Validate(&targetUser) {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "message": "The password of target user is incorrect."})
+	if !user.ValidatePassword(targetUser.Password) {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": "The information of target user is incorrect!"})
 		ctx.Abort()
 		return
 	}
