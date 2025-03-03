@@ -32,6 +32,9 @@ func SignupService(ctx *gin.Context) {
 				return
 			}
 			ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "signup successful!"})
+
+			// TODO: Return a jwt and save it.
+
 			return
 		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": result.Error.Error()})

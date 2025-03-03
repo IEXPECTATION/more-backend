@@ -33,10 +33,12 @@ func LoginService(ctx *gin.Context) {
 	}
 
 	if !user.ValidatePassword(targetUser.Password) {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": "The information of target user is incorrect!"})
+		ctx.JSON(http.StatusOK, gin.H{"status": "failure", "message": "The information of target user is incorrect!"})
 		ctx.Abort()
 		return
 	}
+
+	// TODO: Return a jwt and save it.
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": nil})
 }
