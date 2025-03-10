@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/iexpectation/more/back-end/service"
-	"github.com/iexpectation/more/back-end/service/inspection"
+	"github.com/iexpectation/more/back-end/service/middleware"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -30,6 +30,10 @@ func Register(g *gin.Engine) {
 	g.POST("/login", service.LoginService)
 	g.POST("/signup", service.SignupService)
 
-	_ = g.Group("/balance", inspection.UserStatus)
-	
+	balance := g.Group("/balance", middleware.AuthMiddleWare)
+	balance.GET("/cash")
+	balance.GET("/fund")
+	balance.GET("/goose")
+	balance.GET("/geeg")
+	balance.GET("/seeg")
 }

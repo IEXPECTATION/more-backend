@@ -28,13 +28,11 @@ func LoginService(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": result.Error.Error()})
 		}
 
-		ctx.Abort()
 		return
 	}
 
 	if !user.ValidatePassword(targetUser.Password) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "failure", "message": "The information of target user is incorrect!"})
-		ctx.Abort()
 		return
 	}
 
