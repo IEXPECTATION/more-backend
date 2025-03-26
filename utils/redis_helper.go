@@ -14,6 +14,6 @@ func init() {
 	})
 }
 
-func Instance() *redis.Client {
+func RedisInstance() *redis.Client {
 	return rdb
 }

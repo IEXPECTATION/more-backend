@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/iexpectation/more/back-end/database"
 	"github.com/iexpectation/more/back-end/database/dao"
+	"github.com/iexpectation/more/back-end/utils"
 	"gorm.io/gorm"
 )
 
@@ -36,7 +38,20 @@ func LoginService(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: Return a jwt and save it.
+	token, err := utils.GenerateJWT(targetUser.ID, targetUser.Name)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": err.Error()})
+		return
+	}
 
+	// TODO: Save the token into the redis
+	rdb := utils.RedisInstance()
+  err = rdb.Set(ctx, targetUser.Name, token, 1*time.Hour).Err()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "failure", "message": err.Error()})
+		return
+	}
+
+	ctx.Header("Authorization", "Bearer "+token)
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": nil})
 }
